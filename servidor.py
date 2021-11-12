@@ -17,18 +17,22 @@ def transmisor(mensaje, _cliente):
         if cliente != _cliente:
             cliente.send(mensaje)
             
+def desconectar_cliente(cliente):
+    index = clientes.index(cliente)
+    usuario = usuarios[index]
+    transmisor(f'ChatBot: {usuario} se desconecto'.encode('utf-8'),cliente)
+    clientes.remove(cliente)
+    usuarios.remove(usuario)
+    cliente.close()
+    print(f'{usuario} desconectado')
+            
 def receptor_mensajes(cliente):
     while True:
         try:
             mensaje = cliente.recv(1024)
             transmisor(mensaje,cliente)
         except:
-            index = clientes.index(cliente)
-            usuario = usuarios[index]
-            transmisor(f"ChatBot: {usuario} se desconecto".encode('utf-8'))
-            clientes.remove(cliente)
-            usuarios.remove(usuario)
-            cliente.close()
+            desconectar_cliente(cliente)
             break
         
 def recibiendo_conexiones():
@@ -39,7 +43,7 @@ def recibiendo_conexiones():
         usuario = cliente.recv(1024).decode('utf-8')
         
         clientes.append(cliente)
-        usuarios.append(usuarios)
+        usuarios.append(usuario)
         
         print(f'{usuario} se ha conectado con {str(direccion)}')
         
