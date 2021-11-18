@@ -18,7 +18,7 @@ cliente.connect((host, port))
 def enviar_nombre():
     global areaMessage
     mensaje = cliente.recv(1024).decode("utf8")
-    print('mensaje:',mensaje)
+    print("mensaje:", mensaje)
     cliente.send(usuario.encode("utf8"))
     # while True:
     #     try:
@@ -49,16 +49,16 @@ def main():
 def ventana():
     window = Tk()
     window.title("Bienvenido al Chat UP")
-    window.geometry("330x200")
+    window.geometry("300x100")
 
     titleLabel = Label(window, text="Chat UP")
-    titleLabel.grid(row=0, column=0)
+    titleLabel.pack()
 
     chatLabel = Label(window, text="Introduce un usuario")
-    chatLabel.grid(row=1, column=0)
+    chatLabel.pack()
     txtUsuario = Entry(window, width=20)
-    txtUsuario.grid(row=1, column=1)
-    txtUsuario.focus()
+    txtUsuario.pack()
+    # txtUsuario.focus()
 
     def enviar():
         global usuario
@@ -70,24 +70,24 @@ def ventana():
         ventana2()
 
     btnEntrar = Button(window, text="Entrar", bg="red", fg="white", command=enviar)
-    btnEntrar.grid(row=1, column=2)
+    btnEntrar.pack()
+
     window.mainloop()
 
 
 def ventana2():
     window = Tk()
     window.title("Chat general")
-    # window.geometry("500x500")
 
     titleLabel = Label(window, text="CHAT GENERAL DE LA UP")
-    titleLabel.grid(row=0, column=0, columnspan=2)
+    titleLabel.pack()
 
     textArea = Text(window, height=20, width=40)
-    textArea.grid(row=1, column=0, columnspan=2)
-    textArea.insert(INSERT, areaMessage + "\n")  # opcional
+    textArea.pack()
+    textArea.insert(INSERT, areaMessage)  # opcional
 
     txtMensaje = Entry(window, width=20)
-    txtMensaje.grid(row=2, column=0, columnspan=2)
+    txtMensaje.pack()
 
     def cerrarTerminal():
         window.destroy()
@@ -107,14 +107,14 @@ def ventana2():
                 # print('usuario:',usuario)
                 # textArea.insert(END, areaMessage + "\n")  # opcional
                 # textArea.insert(END, ver)
-                textArea.insert(END,mensaje+'\n')
+                textArea.insert(END, mensaje + "\n")
             except OSError:
                 break
 
     def enviarMensaje():
         global message
         message = txtMensaje.get()
-        message = f'{usuario}:{message}'
+        message = f"{usuario}:{message}"
         txtMensaje.delete(0, END)
         # print('cliente:',cliente)
         # print('usuario:',usuario)
@@ -123,18 +123,18 @@ def ventana2():
         cliente.send(bytes(message, "utf8"))
         # ver = f"{usuario}:{message}"
         # textArea.insert(INSERT, ver + "\n")
-        textArea.insert(END,message+'\n')
+        textArea.insert(END, message + "\n")
 
     btnEnviar = Button(
         window, text="Enviar", bg="blue", fg="white", command=enviarMensaje
     )
-    btnEnviar.grid(row=3, column=1)
+    btnEnviar.pack()
     btnImagenes = Button(window, text="Archivos", bg="red", fg="white")
-    btnImagenes.grid(row=4, column=1)
+    btnImagenes.pack()
     btnSalir = Button(
         window, text="Salir", bg="green", fg="white", command=cerrarTerminal
     )
-    btnSalir.grid(row=5, column=1)
+    btnSalir.pack()
 
     escribir_hilo = threading.Thread(target=recibir)
     escribir_hilo.start()
