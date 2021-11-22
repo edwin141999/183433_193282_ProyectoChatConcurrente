@@ -1,15 +1,22 @@
+from multiprocessing import Pool
 import socket
 import threading
 from tkinter import *
-import sys
+import os, urllib.request, timeit, signal
+from tkinter import filedialog
 
-# usuario = input('Introduce un usuario: ')
+from imgurpython.client import ImgurClient
+
 usuario = ""
 areaMessage = ""
 message = ""
 
 host = "127.0.0.1"
+# host = "0.tcp.ngrok.io"
+# host = "8.tcp.ngrok.io" #mio
 port = 8000
+# port = 10417
+# port = 14834 #mio
 
 cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 cliente.connect((host, port))
@@ -58,16 +65,21 @@ def ventana():
     chatLabel.pack()
     txtUsuario = Entry(window, width=20)
     txtUsuario.pack()
-    # txtUsuario.focus()
+
+    txtAlertas = Label(window, text="")
+    txtAlertas.pack()
 
     def enviar():
         global usuario
-        nombre = txtUsuario.get()
-        usuario = nombre
-        recibir_hilos = threading.Thread(target=enviar_nombre)
-        recibir_hilos.start()
-        window.destroy()
-        ventana2()
+        if txtUsuario.get() == "":
+            txtAlertas.configure(text="Escriba un nombre para identificarse")
+        else:
+            nombre = txtUsuario.get()
+            usuario = nombre
+            recibir_hilos = threading.Thread(target=enviar_nombre)
+            recibir_hilos.start()
+            window.destroy()
+            ventana2()
 
     btnEntrar = Button(window, text="Entrar", bg="red", fg="white", command=enviar)
     btnEntrar.pack()
@@ -90,7 +102,7 @@ def ventana2():
     txtMensaje.pack()
 
     def cerrarTerminal():
-        window.destroy()
+        os.kill(os.getpid(), signal.SIGTERM)
 
     def recibir():
         while True:
@@ -129,8 +141,6 @@ def ventana2():
         window, text="Enviar", bg="blue", fg="white", command=enviarMensaje
     )
     btnEnviar.pack()
-    btnImagenes = Button(window, text="Archivos", bg="red", fg="white")
-    btnImagenes.pack()
     btnSalir = Button(
         window, text="Salir", bg="green", fg="white", command=cerrarTerminal
     )
