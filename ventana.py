@@ -1,11 +1,7 @@
-from multiprocessing import Pool
 import socket
 import threading
 from tkinter import *
-import os, urllib.request, timeit, signal
-from tkinter import filedialog
-
-from imgurpython.client import ImgurClient
+import os, signal
 
 usuario = ""
 areaMessage = ""
@@ -22,38 +18,17 @@ cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 cliente.connect((host, port))
 
 
-def enviar_nombre():
-    global areaMessage
+def enviarUsuario():
     mensaje = cliente.recv(1024).decode("utf8")
     print("mensaje:", mensaje)
     cliente.send(usuario.encode("utf8"))
-    # while True:
-    #     try:
-    #         mensaje = cliente.recv(1024).decode("utf8")
-    #         if mensaje == "@usuario":
-    #             cliente.send(usuario.encode("utf8"))
-    #             print('usuario:',usuario)
-    #         else:
-    #             print(mensaje + " -> ver")
-    #             areaMessage = mensaje
-    #     except:
-    #         print("Un error ha ocurrido")
-    #         cliente.close()
-    #         break
-
-
-def escribir_mensajes():
-    # while True:
-    # mensaje = f"{usuario}:{input('')}"
-    mensaje = f"{usuario}:{message}"
-    cliente.send(mensaje.encode("utf-8"))
 
 
 def main():
-    ventana()
+    crearUsuario()
 
 
-def ventana():
+def crearUsuario():
     window = Tk()
     window.title("Bienvenido al Chat UP")
     window.geometry("300x100")
@@ -69,25 +44,25 @@ def ventana():
     txtAlertas = Label(window, text="")
     txtAlertas.pack()
 
-    def enviar():
+    def entrarChat():
         global usuario
         if txtUsuario.get() == "":
             txtAlertas.configure(text="Escriba un nombre para identificarse")
         else:
             nombre = txtUsuario.get()
             usuario = nombre
-            recibir_hilos = threading.Thread(target=enviar_nombre)
+            recibir_hilos = threading.Thread(target=enviarUsuario)
             recibir_hilos.start()
             window.destroy()
-            ventana2()
+            chatConcurrente()
 
-    btnEntrar = Button(window, text="Entrar", bg="red", fg="white", command=enviar)
+    btnEntrar = Button(window, text="Entrar", bg="red", fg="white", command=entrarChat)
     btnEntrar.pack()
 
     window.mainloop()
 
 
-def ventana2():
+def chatConcurrente():
     window = Tk()
     window.title("Chat general")
 
@@ -100,42 +75,36 @@ def ventana2():
 
     txtMensaje = Entry(window, width=20)
     txtMensaje.pack()
+    
+    labelAlertas = Label(window, text="")
+    labelAlertas.pack()
 
     def cerrarTerminal():
         os.kill(os.getpid(), signal.SIGTERM)
 
-    def recibir():
+    def recibirMensaje():
         while True:
             try:
                 mensaje = cliente.recv(1024).decode("utf8")
-                # if mensaje == "@usuario":
-                #     # cliente.send(usuario.encode("utf-8"))
-                #     print('entroif')
-                # else:
-                #     print(mensaje + " -> else")
-                # ver = f"{usuario}:{mensaje}"
-                # ver = f"{cliente}:{mensaje}"
-                # print('cliente:',cliente)
-                # print('usuario:',usuario)
-                # textArea.insert(END, areaMessage + "\n")  # opcional
-                # textArea.insert(END, ver)
+                textArea.configure(state="normal")
                 textArea.insert(END, mensaje + "\n")
+                textArea.configure(state="disabled")
             except OSError:
                 break
 
     def enviarMensaje():
-        global message
-        message = txtMensaje.get()
-        message = f"{usuario}:{message}"
-        txtMensaje.delete(0, END)
-        # print('cliente:',cliente)
-        # print('usuario:',usuario)
-        # print('message:',message)
-        # textArea.insert(INSERT, areaMessage + "\n")
-        cliente.send(bytes(message, "utf8"))
-        # ver = f"{usuario}:{message}"
-        # textArea.insert(INSERT, ver + "\n")
-        textArea.insert(END, message + "\n")
+        if txtMensaje.get() == "":
+            labelAlertas.configure(text="No puedes enviar mensajes vacios")
+        else:
+            global message
+            labelAlertas.configure(text="")
+            message = txtMensaje.get()
+            message = f"{usuario}:{message}"
+            txtMensaje.delete(0, END)
+            cliente.send(bytes(message, "utf8"))
+            textArea.configure(state="normal")
+            textArea.insert(END, message + "\n")
+            textArea.configure(state="disabled")
 
     btnEnviar = Button(
         window, text="Enviar", bg="blue", fg="white", command=enviarMensaje
@@ -146,7 +115,7 @@ def ventana2():
     )
     btnSalir.pack()
 
-    escribir_hilo = threading.Thread(target=recibir)
+    escribir_hilo = threading.Thread(target=recibirMensaje)
     escribir_hilo.start()
     window.mainloop()
 
