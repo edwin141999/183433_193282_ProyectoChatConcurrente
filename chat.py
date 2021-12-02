@@ -7,12 +7,10 @@ usuario = ""
 areaMessage = ""
 message = ""
 
-host = "127.0.0.1"
-# host = "0.tcp.ngrok.io"
-# host = "8.tcp.ngrok.io" #mio
-port = 8000
-# port = 10417
-# port = 14834 #mio
+host = "127.0.0.1" #host local
+# host = "8.tcp.ngrok.io" #host online
+port = 8000 #puerto local
+# port = 14834 #puerto online
 
 cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 cliente.connect((host, port))

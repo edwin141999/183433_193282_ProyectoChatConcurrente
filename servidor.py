@@ -1,9 +1,8 @@
 import socket
 import threading
-import warnings
 
 host = "127.0.0.1"
-port = 8000
+port = 8000 #puerto local
 # port = 443 #puerto del server online
 
 servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
